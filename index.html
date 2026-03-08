@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cardinal — Eja Angka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a25;
+    --border: #2a2a3d;
+    --accent: #f0e040;
+    --accent2: #40e0f0;
+    --danger: #f04060;
+    --success: #40f080;
+    --text: #e8e8f0;
+    --muted: #6060808;
+    --muted2: #606080;
+    --glow: rgba(240,224,64,0.15);
+    --glow2: rgba(64,224,240,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(240,224,64,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(240,224,64,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 560px;
+    padding: 20px;
+  }
+
+  /* ── Logo ── */
+  .logo {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeDown 0.6s ease;
+  }
+  .logo-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+  .logo-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted2);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    animation: fadeUp 0.4s ease;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-title::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* ── Form elements ── */
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--muted2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .field input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 16px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--glow);
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #0a0a0f;
+  }
+  .btn-primary:hover {
+    background: #f8ec60;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px var(--glow);
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+    margin-top: 10px;
+  }
+  .btn-secondary:hover {
+    background: var(--glow2);
+    transform: translateY(-1px);
+  }
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    margin-top: 10px;
+  }
+  .btn-danger:hover {
+    background: rgba(240,64,96,0.1);
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 22px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text);
+    z-index: 999;
+    transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+    max-width: 320px;
+    text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { border-color: var(--danger); color: var(--danger); }
+  .toast.success { border-color: var(--success); color: var(--success); }
+
+  /* ── Link text ── */
+  .link {
+    color: var(--accent2);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .text-center { text-align: center; margin-top: 18px; font-size: 0.82rem; color: var(--muted2); }
+
+  /* ── Lobby / Room ── */
+  .room-code-display {
+    text-align: center;
+    background: var(--surface2);
+    border: 1px dashed var(--accent);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .room-code-label { font-size: 0.65rem; color: var(--muted2); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+  .room-code-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 10px;
+  }
+
+  .player-list { list-style: none; margin-bottom: 20px; }
+  .player-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    animation: fadeUp 0.3s ease;
+  }
+  .player-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 6px var(--success);
+    flex-shrink: 0;
+  }
+  .player-badge {
+    margin-left: auto;
+    font-size: 0.6rem;
+    background: var(--accent);
+    color: #0a0a0f;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .waiting-text {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted2);
+    font-family: 'Space Mono', monospace;
+    padding: 12px;
+    animation: pulse 2s ease infinite;
+  }
+
+  /* ── Game screen ── */
+  .game-screen { display: none; }
+
+  .players-hud {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .hud-player {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .hud-player.is-me { border-color: var(--accent); }
+  .hud-player.is-opponent { border-color: var(--accent2); }
+  .hud-player-name {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted2);
+    margin-bottom: 6px;
+  }
+  .hud-timer {
+    font-family: 'Space Mono', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .hud-timer.warning { color: var(--danger); animation: pulse 0.8s ease infinite; }
+  .hud-timer.is-me { color: var(--accent); }
+  .hud-timer.is-opp { color: var(--accent2); }
+  .hud-score {
+    font-size: 0.75rem;
+    color: var(--muted2);
+    margin-top: 4px;
+    font-family: 'Space Mono', monospace;
+  }
+  .hud-penalty {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--danger);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .hud-penalty.animate {
+    animation: penaltyPop 1s ease forwards;
+  }
+
+  .question-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .question-label {
+    font-size: 0.65rem;
+    color: var(--muted2);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-family: 'Space Mono', monospace;
+  }
+  .question-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -1px;
+  }
+
+  .answer-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .answer-row input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 16px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .answer-row input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--glow);
+  }
+  .answer-row input.correct {
+    border-color: var(--success);
+    box-shadow: 0 0 0 3px rgba(64,240,128,0.15);
+    animation: flashGreen 0.4s ease;
+  }
+  .answer-row input.wrong {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(240,64,96,0.15);
+    animation: shake 0.4s ease;
+  }
+  .answer-row .btn-submit {
+    width: auto;
+    padding: 13px 20px;
+    background: var(--accent);
+    color: #0a0a0f;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .answer-row .btn-submit:hover {
+    background: #f8ec60;
+    transform: translateY(-1px);
+  }
+
+  .hint-box {
+    background: rgba(240,64,96,0.08);
+    border: 1px solid rgba(240,64,96,0.25);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--danger);
+    margin-top: 12px;
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+  .hint-box.show { display: block; }
+  .hint-label { color: var(--muted2); margin-bottom: 4px; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; }
+
+  /* ── Game Over ── */
+  .gameover-icon {
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .gameover-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .gameover-title.win { color: var(--accent); }
+  .gameover-title.lose { color: var(--danger); }
+  .gameover-reason {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--muted2);
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  .gameover-score {
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    color: var(--text);
+    padding: 14px;
+    background: var(--surface2);
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+  .score-big { font-size: 2.5rem; color: var(--accent); display: block; font-weight: 700; }
+
+  /* ── Screens ── */
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeUp 0.4s ease; }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+  @keyframes flashGreen {
+    0% { background: rgba(64,240,128,0.2); }
+    100% { background: transparent; }
+  }
+  @keyframes penaltyPop {
+    0%   { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+    50%  { opacity: 1; transform: translate(-50%, -80%) scale(1.2); }
+    100% { opacity: 0; transform: translate(-50%, -120%) scale(1); }
+  }
+
+  /* ── Divider ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+    color: var(--muted2);
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="logo">
+    <div class="logo-title">Cardinal</div>
+    <div class="logo-sub">Eja Angka · Multiplayer</div>
+  </div>
+
+  <!-- ── Screen: Login ── -->
+  <div class="screen active" id="screen-login">
+    <div class="card">
+      <div class="card-title">Masuk</div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="login-username" placeholder="username kamu" autocomplete="username"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <button class="btn btn-primary" id="btn-login">Masuk →</button>
+      <div class="text-center">Belum punya akun? <span class="link" id="goto-register">Daftar</span></div>
+    </div>
+  </div>
+
+  <!-- ── Screen: Register ── -->
+  <div class="screen" id="screen-register">
+    <div class="card">
+      <div class="card-title">Daftar</div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="reg-username" placeholder="min. 3 karakter" autocomplete="username"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="reg-password" placeholder="min. 4 karakter" autocomplete="new-password"/>
+      </div>
+      <button class="btn btn-primary" id="btn-register">Daftar →</button>
+      <div class="text-center">Sudah punya akun? <span class="link" id="goto-login">Masuk</span></div>
+    </div>
+  </div>
+
+  <!-- ── Screen: Menu ── -->
+  <div class="screen" id="screen-menu">
+    <div class="card">
+      <div class="card-title" id="menu-greeting">Halo!</div>
+      <button class="btn btn-primary" id="btn-create-room">+ Buat Room</button>
+      <div class="divider">atau</div>
+      <div class="field">
+        <label>Kode Room</label>
+        <input type="text" id="join-code" placeholder="ABCDEF" maxlength="6" style="text-transform:uppercase;letter-spacing:4px;font-size:1.1rem;text-align:center;"/>
+      </div>
+      <button class="btn btn-secondary" id="btn-join-room">Gabung Room →</button>
+      <button class="btn btn-danger" id="btn-logout" style="margin-top:16px;">Keluar</button>
+    </div>
+  </div>
+
+  <!-- ── Screen: Lobby ── -->
+  <div class="screen" id="screen-lobby">
+    <div class="card">
+      <div class="room-code-display">
+        <div class="room-code-label">Kode Room</div>
+        <div class="room-code-value" id="lobby-code">------</div>
+      </div>
+      <div class="card-title">Pemain</div>
+      <ul class="player-list" id="lobby-players"></ul>
+      <div class="waiting-text" id="lobby-waiting">Menunggu pemain lain...</div>
+      <button class="btn btn-primary" id="btn-start-game" style="display:none;">▶ Mulai Game</button>
+      <button class="btn btn-danger" id="btn-leave-room">← Tinggalkan Room</button>
+    </div>
+  </div>
+
+  <!-- ── Screen: Game ── -->
+  <div class="screen" id="screen-game">
+    <div class="players-hud" id="players-hud"></div>
+    <div class="question-box">
+      <div class="question-label">Eja angka berikut</div>
+      <div class="question-number" id="game-question">—</div>
+    </div>
+    <div class="answer-row">
+      <input type="text" id="game-answer" placeholder="ketik ejaan angka..." autocomplete="off"/>
+      <button class="btn-submit" id="btn-submit">Kirim</button>
+    </div>
+    <div class="hint-box" id="hint-box">
+      <div class="hint-label">Jawaban yang benar:</div>
+      <div id="hint-text"></div>
+    </div>
+  </div>
+
+  <!-- ── Screen: Game Over ── -->
+  <div class="screen" id="screen-gameover">
+    <div class="card">
+      <div class="gameover-icon" id="go-icon"></div>
+      <div class="gameover-title" id="go-title"></div>
+      <div class="gameover-reason" id="go-reason"></div>
+      <div class="gameover-score">
+        <span class="score-big" id="go-score">0</span>
+        soal dijawab benar
+      </div>
+      <button class="btn btn-primary" id="btn-play-again">Main Lagi</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────────────────────
+const API = '';  // same origin, or set to 'http://localhost:8000'
+const WS_BASE = location.protocol === 'https:' ? 'wss://' : 'ws://';
+const WS_HOST = location.host || 'localhost:8000';
+
+// ── State ───────────────────────────────────────────────────────────────────
+let state = {
+  username: null,
+  roomCode: null,
+  isHost: false,
+  ws: null,
+  players: {},       // username → { time_left, score }
+  myScore: 0,
+};
+
+// ── Utilities ───────────────────────────────────────────────────────────────
+let toastTimer = null;
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+async function api(path, body) {
+  const res = await fetch(API + path, {
+    method: body ? 'POST' : 'GET',
+    headers: body ? { 'Content-Type': 'application/json' } : {},
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || 'Error');
+  return data;
+}
+
+// ── Auth ────────────────────────────────────────────────────────────────────
+document.getElementById('goto-register').onclick = () => showScreen('register');
+document.getElementById('goto-login').onclick = () => showScreen('login');
+
+document.getElementById('btn-login').onclick = async () => {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!username || !password) return toast('Isi semua field', 'error');
+  try {
+    const res = await api('/api/login', { username, password });
+    state.username = res.username;
+    document.getElementById('menu-greeting').textContent = `Halo, ${res.username}!`;
+    showScreen('menu');
+    toast('Selamat datang!', 'success');
+  } catch (e) { toast(e.message, 'error'); }
+};
+
+document.getElementById('btn-register').onclick = async () => {
+  const username = document.getElementById('reg-username').value.trim();
+  const password = document.getElementById('reg-password').value;
+  if (!username || !password) return toast('Isi semua field', 'error');
+  try {
+    await api('/api/register', { username, password });
+    toast('Berhasil daftar! Silakan masuk.', 'success');
+    showScreen('login');
+    document.getElementById('login-username').value = username;
+  } catch (e) { toast(e.message, 'error'); }
+};
+
+document.getElementById('btn-logout').onclick = () => {
+  state.username = null;
+  if (state.ws) state.ws.close();
+  showScreen('login');
+};
+
+// ── Room ────────────────────────────────────────────────────────────────────
+document.getElementById('btn-create-room').onclick = async () => {
+  try {
+    const res = await api('/api/room/create', { username: state.username });
+    state.roomCode = res.room_code;
+    enterLobby();
+  } catch (e) { toast(e.message, 'error'); }
+};
+
+document.getElementById('btn-join-room').onclick = async () => {
+  const code = document.getElementById('join-code').value.trim().toUpperCase();
+  if (code.length !== 6) return toast('Kode room harus 6 huruf', 'error');
+  try {
+    await api('/api/room/' + code);
+    state.roomCode = code;
+    enterLobby();
+  } catch (e) { toast(e.message, 'error'); }
+};
+
+document.getElementById('btn-leave-room').onclick = () => {
+  if (state.ws) { state.ws.send(JSON.stringify({ type: 'leave' })); state.ws.close(); }
+  state.roomCode = null;
+  state.isHost = false;
+  showScreen('menu');
+};
+
+// ── Lobby ───────────────────────────────────────────────────────────────────
+function enterLobby() {
+  document.getElementById('lobby-code').textContent = state.roomCode;
+  document.getElementById('lobby-players').innerHTML = '';
+  document.getElementById('btn-start-game').style.display = 'none';
+  showScreen('lobby');
+  connectWS();
+}
+
+function renderLobbyPlayers(players) {
+  const ul = document.getElementById('lobby-players');
+  ul.innerHTML = '';
+  players.forEach(p => {
+    const li = document.createElement('li');
+    li.className = 'player-item';
+    li.innerHTML = `<span class="player-dot"></span>${p.username}${p.is_host ? '<span class="player-badge">Host</span>' : ''}`;
+    ul.appendChild(li);
+  });
+  // Show start button if I am host and there are ≥2 players
+  if (state.isHost && players.length >= 2) {
+    document.getElementById('btn-start-game').style.display = 'block';
+    document.getElementById('lobby-waiting').style.display = 'none';
+  } else {
+    document.getElementById('lobby-waiting').style.display = 'block';
+    if (state.isHost && players.length < 2) {
+      document.getElementById('lobby-waiting').textContent = 'Menunggu pemain lain bergabung...';
+    } else if (!state.isHost) {
+      document.getElementById('lobby-waiting').textContent = 'Menunggu host memulai game...';
+    }
+  }
+}
+
+document.getElementById('btn-start-game').onclick = () => {
+  if (state.ws) state.ws.send(JSON.stringify({ type: 'start_game' }));
+};
+
+// ── WebSocket ────────────────────────────────────────────────────────────────
+function connectWS() {
+  const url = `${WS_BASE}${WS_HOST}/ws/${state.roomCode}/${state.username}`;
+  state.ws = new WebSocket(url);
+
+  state.ws.onopen = () => console.log('WS connected');
+  state.ws.onerror = (e) => { toast('Koneksi gagal', 'error'); console.error(e); };
+  state.ws.onclose = () => console.log('WS closed');
+
+  state.ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    handleMessage(msg);
+  };
+}
+
+function handleMessage(msg) {
+  switch (msg.type) {
+
+    case 'joined':
+      state.isHost = msg.is_host;
+      break;
+
+    case 'room_update':
+      renderLobbyPlayers(msg.players);
+      // Update local state
+      state.players = {};
+      msg.players.forEach(p => {
+        state.players[p.username] = { time_left: p.time_left, score: p.score };
+      });
+      break;
+
+    case 'error':
+      toast(msg.message, 'error');
+      break;
+
+    case 'game_start':
+      startGameScreen(msg.question, msg.time_left);
+      break;
+
+    case 'correct':
+      state.myScore = msg.score;
+      state.players[state.username].time_left = msg.time_left;
+      state.players[state.username].score = msg.score;
+      updateHud();
+      showCorrect(msg.next_question);
+      break;
+
+    case 'wrong':
+      showWrong(msg.correct_answer);
+      break;
+
+    case 'timer_update':
+      if (state.players[msg.username]) {
+        state.players[msg.username].time_left = msg.time_left;
+        updateHud();
+      }
+      break;
+
+    case 'time_penalty':
+      if (state.players[state.username]) {
+        state.players[state.username].time_left = msg.time_left;
+        updateHud();
+        showPenalty(msg.seconds, msg.from);
+      }
+      break;
+
+    case 'game_over':
+      endGame(msg.result, msg.reason, msg.score);
+      break;
+
+    case 'opponent_lost':
+      // Will receive game_over win separately if applicable
+      break;
+  }
+}
+
+// ── Game Screen ──────────────────────────────────────────────────────────────
+function startGameScreen(question, timeLeft) {
+  // Initialize players state with 60s
+  Object.keys(state.players).forEach(u => {
+    state.players[u] = { time_left: timeLeft, score: 0 };
+  });
+  if (!state.players[state.username]) {
+    state.players[state.username] = { time_left: timeLeft, score: 0 };
+  }
+  state.myScore = 0;
+  buildHud();
+  document.getElementById('game-question').textContent = question;
+  document.getElementById('game-answer').value = '';
+  document.getElementById('hint-box').classList.remove('show');
+  showScreen('game');
+  document.getElementById('game-answer').focus();
+}
+
+function buildHud() {
+  const hud = document.getElementById('players-hud');
+  hud.innerHTML = '';
+  const allPlayers = Object.keys(state.players);
+  allPlayers.forEach(uname => {
+    const isMe = uname === state.username;
+    const div = document.createElement('div');
+    div.className = 'hud-player ' + (isMe ? 'is-me' : 'is-opponent');
+    div.id = 'hud-' + uname;
+    div.innerHTML = `
+      <div class="hud-player-name">${isMe ? '● Kamu' : '● ' + uname}</div>
+      <div class="hud-timer ${isMe ? 'is-me' : 'is-opp'}" id="timer-${uname}">60</div>
+      <div class="hud-score" id="score-${uname}">0 soal</div>
+      <div class="hud-penalty" id="penalty-${uname}">-10s</div>
+    `;
+    hud.appendChild(div);
+  });
+}
+
+function updateHud() {
+  Object.entries(state.players).forEach(([uname, data]) => {
+    const timerEl = document.getElementById('timer-' + uname);
+    const scoreEl = document.getElementById('score-' + uname);
+    if (timerEl) {
+      timerEl.textContent = data.time_left;
+      timerEl.classList.toggle('warning', data.time_left <= 10);
+    }
+    if (scoreEl) scoreEl.textContent = data.score + ' soal';
+  });
+}
+
+function showPenalty(seconds, from) {
+  const myEl = document.getElementById('penalty-' + state.username);
+  if (myEl) {
+    myEl.textContent = `-${seconds}s`;
+    myEl.classList.remove('animate');
+    void myEl.offsetWidth; // reflow
+    myEl.classList.add('animate');
+  }
+  toast(`-${seconds} detik dari ${from}!`, 'error');
+}
+
+function showCorrect(nextQuestion) {
+  const input = document.getElementById('game-answer');
+  input.classList.add('correct');
+  input.value = '';
+  document.getElementById('hint-box').classList.remove('show');
+  document.getElementById('game-question').textContent = nextQuestion;
+  setTimeout(() => input.classList.remove('correct'), 600);
+  input.focus();
+}
+
+function showWrong(correctAnswer) {
+  const input = document.getElementById('game-answer');
+  input.classList.add('wrong');
+  document.getElementById('hint-text').textContent = correctAnswer;
+  document.getElementById('hint-box').classList.add('show');
+  setTimeout(() => input.classList.remove('wrong'), 600);
+  setTimeout(() => document.getElementById('hint-box').classList.remove('show'), 4000);
+  input.focus();
+}
+
+// Submit answer
+document.getElementById('btn-submit').onclick = submitAnswer;
+document.getElementById('game-answer').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitAnswer();
+});
+
+function submitAnswer() {
+  const answer = document.getElementById('game-answer').value.trim();
+  if (!answer) return;
+  if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+    state.ws.send(JSON.stringify({ type: 'submit_answer', answer }));
+  }
+}
+
+// ── Game Over ─────────────────────────────────────────────────────────────────
+function endGame(result, reason, score) {
+  const finalScore = score !== undefined ? score : (state.players[state.username]?.score || state.myScore);
+  document.getElementById('go-icon').textContent = result === 'win' ? '🏆' : '💀';
+  const titleEl = document.getElementById('go-title');
+  titleEl.textContent = result === 'win' ? 'Menang!' : 'Kalah!';
+  titleEl.className = 'gameover-title ' + (result === 'win' ? 'win' : 'lose');
+  document.getElementById('go-reason').textContent = reason || '';
+  document.getElementById('go-score').textContent = finalScore;
+  if (state.ws) state.ws.close();
+  showScreen('gameover');
+}
+
+document.getElementById('btn-play-again').onclick = () => {
+  state.roomCode = null;
+  state.isHost = false;
+  state.players = {};
+  showScreen('menu');
+};
+</script>
+</body>
+</html>
